@@ -51,4 +51,7 @@
     <!-- status message in phone options dialog for when mobile data is off -->
     <string name="global_actions_mobile_data_off_status">Mobile data is OFF</string>
 
+    <!-- Do Not Translate: Alternate local_storage.xml -->
+    <string name="alternate_storagelist_file">/data/storage_list.xml</string>
+
 </resources> 

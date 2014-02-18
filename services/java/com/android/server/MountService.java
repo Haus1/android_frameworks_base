@@ -77,6 +77,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
@@ -1189,9 +1191,30 @@ class MountService extends IMountService.Stub
         mVolumeStates.clear();
 
         Resources resources = mContext.getResources();
-
+        FileInputStream stream = null;
         int id = com.android.internal.R.xml.storage_list;
-        XmlResourceParser parser = resources.getXml(id);
+        XmlResourceParser parser = null;
+
+        try {
+            if (LOCAL_LOGD) Slog.d(TAG, "readStorageListLocked: check for alternate file");
+            stream = new FileInputStream(
+                     resources.getString(com.android.internal.R.string.alternate_storagelist_file));
+            parser = (XmlResourceParser)Xml.newPullParser();
+            parser.setInput(stream, null);
+            if (LOCAL_LOGD) Slog.d(TAG, "readStorageListLocked: opened alternate file");
+        } catch (FileNotFoundException e) {
+            if (LOCAL_LOGD) Slog.d(TAG, "readStorageListLocked: no alternate file");
+            parser = null;
+        } catch (XmlPullParserException e) {
+            if (LOCAL_LOGD) Slog.d(TAG, "readStorageListLocked: no parser for alternate file");
+            parser = null;
+        }
+
+        if (parser == null) {
+            if (LOCAL_LOGD) Slog.d(TAG, "readStorageListLocked: open normal file");
+            parser = resources.getXml(id);
+        }
+
         AttributeSet attrs = Xml.asAttributeSet(parser);
 
         try {
